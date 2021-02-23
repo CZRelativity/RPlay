@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">GPlay</string>
+    <string name="app_update">应用更新</string>
+    <string name="message_center">消息中心</string>
+    <string name="settings">设置</string>
+    <string name="open">打开</string>
+    <string name="close">关闭</string>
+    <string name="search">SEARCH</string>
+    <string name="title">标题</string>
+    <string name="author_shareUser">作者：</string>
+</resources>
