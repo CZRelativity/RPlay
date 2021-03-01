@@ -14,15 +14,17 @@ import rx.Observable;
 public class HomeModel {
 
     private ApiService apiService;
+    public int articlePage;
 
     //考虑到连续获取页面
     public HomeModel() {
         HttpManager manager = new HttpManager();
         this.apiService = manager.getRetrofit(manager.getOkHttpClient()).create(ApiService.class);
+        articlePage = 0;
     }
 
-    public Observable<ResponseBean<ArticlePageBean>> getArticlePage() {
-        return apiService.getArticlePage(0);
+    public Observable<ResponseBean<ArticlePageBean>> getArticlePage(int page) {
+        return apiService.getArticlePage(page);
     }
 
     public Observable<ResponseBean<List<BannerBean>>> getBanner() {

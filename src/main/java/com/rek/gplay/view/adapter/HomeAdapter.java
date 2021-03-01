@@ -24,8 +24,9 @@ import java.util.List;
 
 public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final int type_banner = 0;
-    private static final int type_article = 1;
+    private static final int TYPE_BANNER = 0;
+    private static final int TYPE_ARTICLE = 1;
+    private static final int TYPE_LOAD = 2;
     private List<ArticleBean> articleBeanList;
     private List<BannerBean> bannerBeanList;
     LayoutInflater mLayoutInflater;
@@ -47,16 +48,24 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         void onItemClick(View view, int pos, String url);
     }
 
+    public void addMoreArticles(List<ArticleBean> moreArticleBeanList) {
+        articleBeanList.addAll(moreArticleBeanList);
+        this.notifyDataSetChanged();
+    }
+
     //创建ViewHolder
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         /* 《第一行代码》P117：LayoutInflater.inflate()方法的第三个参数指定为false，表示只让我们在父布局中声明的layout属性生效，
         但不为这个View添加父布局，因为一旦View有了父布局以后，就不能添加到ListView/RecyclerView中了 */
-        if (viewType == type_banner) {
-            return new MyBannerViewHolder(mLayoutInflater.inflate(R.layout.item_banner, parent, false));
-        } else {
-            return new ArticleViewHolder(mLayoutInflater.inflate(R.layout.item_article, parent, false));
+        switch (viewType) {
+            case TYPE_BANNER:
+                return new MyBannerViewHolder(mLayoutInflater.inflate(R.layout.item_banner, parent, false));
+            case TYPE_ARTICLE:
+                return new ArticleViewHolder(mLayoutInflater.inflate(R.layout.item_article, parent, false));
+            default:
+                return new LoadMoreViewHolder(mLayoutInflater.inflate(R.layout.item_load_more, parent, false));
         }
     }
 
@@ -76,7 +85,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     });
                 }
             }).setIndicator(new RoundLinesIndicator(mContext));
-        } else {
+        } else if (position != getItemCount() - 1) {
             ArticleViewHolder articleViewHolder = (ArticleViewHolder) holder;
             ArticleBean articleBean = articleBeanList.get(position - 1);
             articleViewHolder.tv_title.setText(articleBean.getTitle());
@@ -85,9 +94,14 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 String name = tags.get(0).getName();
                 if (name.equals("项目")) {
                     articleViewHolder.tv_tag_project.setVisibility(View.VISIBLE);
+                    articleViewHolder.tv_tag_public.setVisibility(View.GONE);
                 } else if (name.equals("公众号")) {
                     articleViewHolder.tv_tag_public.setVisibility(View.VISIBLE);
+                    articleViewHolder.tv_tag_project.setVisibility(View.GONE);
                 }
+            } else {
+                articleViewHolder.tv_tag_project.setVisibility(View.GONE);
+                articleViewHolder.tv_tag_public.setVisibility(View.GONE);
             }
             if (articleBean.getAuthor().equals("")) {
                 articleViewHolder.tv_authorName.setText(articleBean.getShareUser());
@@ -98,6 +112,9 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             String date = articleBean.getNiceDate();
             if (date.length() > 10) {
                 date = date.substring(0, 10);
+                articleViewHolder.tv_tag_new.setVisibility(View.GONE);
+            } else {
+                articleViewHolder.tv_tag_new.setVisibility(View.VISIBLE);
             }
             articleViewHolder.tv_dateValue.setText(date);
             articleViewHolder.itemView.setOnClickListener(v -> {
@@ -109,23 +126,25 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemViewType(int position) {
         if (position == 0) {
-            return type_banner;
-        } else {
-            return type_article;
+            return TYPE_BANNER;
+        } else if (position == getItemCount() - 1) {
+            return TYPE_LOAD;
         }
+        return TYPE_ARTICLE;
     }
 
     @Override
     public int getItemCount() {
-        return articleBeanList.size() + 1;
+        return articleBeanList.size() + 2;
     }
 
     static class ArticleViewHolder extends RecyclerView.ViewHolder {
-        TextView tv_title, tv_tag_project, tv_tag_public, tv_authorName, tv_chapterName, tv_dateValue;
+        TextView tv_title, tv_tag_new, tv_tag_project, tv_tag_public, tv_authorName, tv_chapterName, tv_dateValue;
 
         public ArticleViewHolder(@NonNull View itemView) {
             super(itemView);
             tv_title = itemView.findViewById(R.id.tv_article_title);
+            tv_tag_new = itemView.findViewById(R.id.tv_tag_new);
             tv_tag_project = itemView.findViewById(R.id.tv_tag_project);
             tv_tag_public = itemView.findViewById(R.id.tv_tag_public);
             tv_authorName = itemView.findViewById(R.id.tv_article_author_shareUser_name);
@@ -141,6 +160,13 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public MyBannerViewHolder(@NonNull View itemView) {
             super(itemView);
             banner = itemView.findViewById(R.id.banner_home);
+        }
+    }
+
+    static class LoadMoreViewHolder extends RecyclerView.ViewHolder {
+
+        public LoadMoreViewHolder(@NonNull View itemView) {
+            super(itemView);
         }
     }
 }

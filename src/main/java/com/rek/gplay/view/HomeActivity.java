@@ -12,7 +12,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.rek.gplay.R;
 import com.rek.gplay.bean.ArticleBean;
@@ -24,16 +26,17 @@ import com.rek.gplay.view.adapter.HomeAdapter;
 
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity implements HomeContract.View {
+public class HomeActivity extends AppCompatActivity implements HomeContract.View, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener, HomeRvOnScrollListener.OnScrollUpperShower {
 
     private static final String TAG = "HomeActivity";
 
+    FloatingActionButton btn_up;
     Toolbar mToolbar;
     DrawerLayout mDrawerLayout;
     NavigationView mNavigationView;
+    SwipeRefreshLayout mSRLayout;
     RecyclerView mRv;
     HomeAdapter mAdapter;
-
     HomePresenter homePresenter;
 
     @Override
@@ -48,7 +51,7 @@ public class HomeActivity extends AppCompatActivity implements HomeContract.View
         setContentView(R.layout.activity_home);
         initView();
         homePresenter = new HomePresenter(this);
-        initData();
+        loadData();
 
         //getHeaderView需要传入一个下标，如果只有1个就从0开始算就可以了
         View headerView = mNavigationView.getHeaderView(0);
@@ -74,19 +77,32 @@ public class HomeActivity extends AppCompatActivity implements HomeContract.View
     }
 
     private void initView() {
+
         mDrawerLayout = findViewById(R.id.drawer_layout_home);
         mNavigationView = findViewById(R.id.navigation_view_home);
         mToolbar = findViewById(R.id.toolbar_home);
-        mRv = findViewById(R.id.rv_home);
         setSupportActionBar(mToolbar);
+
+        btn_up = findViewById(R.id.btn_up_home);
+        btn_up.setOnClickListener(this);
+
+        mRv = findViewById(R.id.rv_home);
+        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+        mRv.setLayoutManager(mLinearLayoutManager);
+        HomeRvOnScrollListener mRvOnScrollListener = new HomeRvOnScrollListener(mRv);
+        mRvOnScrollListener.setOnScrollLoader(() -> homePresenter.requestMoreDatas());
+        mRvOnScrollListener.setOnScrollUpperShower(this);
+        mRv.addOnScrollListener(mRvOnScrollListener);
+        mSRLayout = findViewById(R.id.sr_layout_home);
+        mSRLayout.setOnRefreshListener(this);
+
     }
 
-    private void initData() {
+    private void loadData() {
         homePresenter.requestDatas();
     }
 
-    private void initRV(List<ArticleBean> articleBeanList, List<BannerBean> bannerBeanList) {
-        mRv.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+    private void loadRV(List<ArticleBean> articleBeanList, List<BannerBean> bannerBeanList) {
         mAdapter = new HomeAdapter(this, articleBeanList, bannerBeanList);
         mAdapter.setOnItemClickListener((view, pos, url) -> {
             Intent intent = new Intent(this, WebActivity.class);
@@ -96,10 +112,23 @@ public class HomeActivity extends AppCompatActivity implements HomeContract.View
         mRv.setAdapter(mAdapter);
     }
 
+    private void loadMoreRV(List<ArticleBean> moreArticleList) {
+        mAdapter.addMoreArticles(moreArticleList);
+    }
+
     @Override
     public void showData(HomeBean homeBean) {
-        initRV(homeBean.getHomeArticleBeanList(), homeBean.getHomeBannerBeanList());
+        loadRV(homeBean.getHomeArticleBeanList(), homeBean.getHomeBannerBeanList());
+        if (mSRLayout.isRefreshing()) {
+            mSRLayout.setRefreshing(false);
+        }
     }
+
+    @Override
+    public void showMoreDatas(List<ArticleBean> moreArticleList) {
+        loadMoreRV(moreArticleList);
+    }
+
 
     @Override
     public void showNoData() {
@@ -111,4 +140,31 @@ public class HomeActivity extends AppCompatActivity implements HomeContract.View
         Toast.makeText(this, meg, Toast.LENGTH_SHORT).show();
     }
 
+    //SwipeRefreshLayout.OnRefreshListener
+    @Override
+    public void onRefresh() {
+        loadData();
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.btn_up_home) {
+            mRv.smoothScrollToPosition(0);
+        }
+    }
+
+    //OnScrollUpperShower
+    @Override
+    public void showUpper() {
+        if (btn_up.getVisibility() == View.GONE) {
+            btn_up.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void hideUpper() {
+        if (btn_up.getVisibility() == View.VISIBLE) {
+            btn_up.setVisibility(View.GONE);
+        }
+    }
 }

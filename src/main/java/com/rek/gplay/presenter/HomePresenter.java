@@ -11,6 +11,7 @@ import java.util.List;
 
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.observers.Subscribers;
 import rx.schedulers.Schedulers;
 
 public class HomePresenter implements HomeContract.Presenter {
@@ -31,7 +32,7 @@ public class HomePresenter implements HomeContract.Presenter {
 
         homeBean = new HomeBean();
 
-        homeModel.getArticlePage()
+        homeModel.getArticlePage(0)
                 //把这句前面的操作放到子线程去做
                 .subscribeOn(Schedulers.io())
 
@@ -61,6 +62,7 @@ public class HomePresenter implements HomeContract.Presenter {
                         if (articlePageBean != null) {
                             homeBean.setHomeArticleBeanList(articlePageBean.getData().getArticles());
                             if (homeBean.getHomeBannerBeanList() != null) {
+                                homeModel.articlePage = 0;
                                 homeView.showData(homeBean);
                             }
                         } else {
@@ -96,6 +98,41 @@ public class HomePresenter implements HomeContract.Presenter {
                     }
                 });
     }
+
+    @Override
+    public void requestMoreDatas() {
+
+        homeModel.articlePage++;
+        homeModel.getArticlePage(homeModel.articlePage)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<ResponseBean<ArticlePageBean>>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(ResponseBean<ArticlePageBean> articlePageBean) {
+                        if (articlePageBean != null) {
+                            List<ArticleBean> articleBeanList = articlePageBean.getData().getArticles();
+                            if (articleBeanList != null) {
+                                homeView.showMoreDatas(articleBeanList);
+                            } else {
+                                homeModel.articlePage--;
+                                homeView.showNoData();
+                            }
+                        }
+                    }
+                });
+
+    }
+
 
 //    @Override
 //    public void requestDatas() {
