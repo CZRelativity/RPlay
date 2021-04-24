@@ -11,7 +11,6 @@ import java.util.List;
 
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.observers.Subscribers;
 import rx.schedulers.Schedulers;
 
 public class HomePresenter implements HomeContract.Presenter {
@@ -28,7 +27,7 @@ public class HomePresenter implements HomeContract.Presenter {
     }
 
     @Override
-    public void requestDatas() {
+    public void requestData() {
 
         homeBean = new HomeBean();
 
@@ -122,7 +121,7 @@ public class HomePresenter implements HomeContract.Presenter {
                         if (articlePageBean != null) {
                             List<ArticleBean> articleBeanList = articlePageBean.getData().getArticles();
                             if (articleBeanList != null) {
-                                homeView.showMoreDatas(articleBeanList);
+                                homeView.showMoreData(articleBeanList);
                             } else {
                                 homeModel.articlePage--;
                                 homeView.showNoData();

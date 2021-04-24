@@ -4,6 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="80dp"
     android:layout_margin="1dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?selectableItemBackground"
     app:cardCornerRadius="5dp"
     app:contentPadding="5dp">
 
@@ -20,8 +23,8 @@
             android:layout_marginStart="5dp"
             android:lines="1"
             android:text="@string/title"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
 
         <LinearLayout
             android:id="@+id/layout_tags"

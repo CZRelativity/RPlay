@@ -10,7 +10,7 @@ import java.util.List;
 public interface HomeContract {
 
     interface View extends BaseView<HomeBean> {
-        void showMoreDatas(List<ArticleBean> moreArticleList);
+        void showMoreData(List<ArticleBean> moreArticleList);
     }
 
     interface Presenter extends BasePresenter {

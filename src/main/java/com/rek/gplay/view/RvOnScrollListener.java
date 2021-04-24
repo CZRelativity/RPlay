@@ -1,24 +1,23 @@
 package com.rek.gplay.view;
 
-import android.widget.Button;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 //自定义OnScrollListener实现下拉加载更多
-class HomeRvOnScrollListener extends RecyclerView.OnScrollListener {
+class RvOnScrollListener extends RecyclerView.OnScrollListener {
 
-    RecyclerView recyclerView;
+    RecyclerView rv;
     LinearLayoutManager linearLayoutManager;
     OnScrollLoader onScrollLoader;
     OnScrollUpperShower onScrollUpperShower;
+//    OnScrollToolBarShower onScrollToolBarShower;
 
     int lastVisibleItemPos;
 
-    public HomeRvOnScrollListener(RecyclerView recyclerView) {
-        this.recyclerView = recyclerView;
-        linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+    public RvOnScrollListener(RecyclerView rv) {
+        this.rv = rv;
+        linearLayoutManager = (LinearLayoutManager) rv.getLayoutManager();
     }
 
     public void setOnScrollLoader(OnScrollLoader onScrollLoader) {
@@ -29,28 +28,32 @@ class HomeRvOnScrollListener extends RecyclerView.OnScrollListener {
         this.onScrollUpperShower = onScrollUpperShower;
     }
 
+//    public void setOnScrollToolBarShower(OnScrollToolBarShower onScrollToolBarShower) {
+//        this.onScrollToolBarShower = onScrollToolBarShower;
+//    }
+
     /* 滚动状态变化
      * STATE_IDLE为无滑动，STATE_SETTLING滑动中 */
     @Override
     public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
         super.onScrollStateChanged(recyclerView, newState);
-        if (onScrollUpperShower != null) {
-            if (lastVisibleItemPos > 10) {
-                onScrollUpperShower.showUpper();
-            } else {
-                onScrollUpperShower.hideUpper();
-            }
-        }
-        if (onScrollLoader != null && newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItemPos == linearLayoutManager.getItemCount() - 1) {
+        if (onScrollLoader != null && newState == RecyclerView.SCROLL_STATE_IDLE
+                && lastVisibleItemPos == linearLayoutManager.getItemCount() - 1) {
             onScrollLoader.loadMore();
         }
     }
 
     /* 在滚动中
-     * 当dy>0时表示正在向上滑动，当dy<=0时表示停止或向下滑动 */
+     * 当dy>0时表示手正在向上滑动，然后屏幕向下走
+     * 当dy<=0时表示停止或手向下滑动，然后屏幕向上走 */
     @Override
     public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);
+//        if (dy < 0) {
+//            if (onScrollUpperShower != null) {
+//                onScrollUpperShower.showUpper();
+//            }
+//        }
         lastVisibleItemPos = linearLayoutManager.findLastVisibleItemPosition();
     }
 
@@ -64,4 +67,11 @@ class HomeRvOnScrollListener extends RecyclerView.OnScrollListener {
 
         void hideUpper();
     }
+
+//    public interface OnScrollToolBarShower {
+//        void showToolBar();
+//
+//        void hideToolBar();
+//    }
+
 }

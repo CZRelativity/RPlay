@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,10 +14,11 @@ import com.bumptech.glide.request.RequestOptions;
 import com.rek.gplay.R;
 import com.rek.gplay.bean.ArticleBean;
 import com.rek.gplay.bean.BannerBean;
+import com.rek.gplay.databinding.ItemArticleBinding;
 import com.youth.banner.Banner;
 import com.youth.banner.adapter.BannerImageAdapter;
 import com.youth.banner.holder.BannerImageHolder;
-import com.youth.banner.indicator.RoundLinesIndicator;
+import com.youth.banner.indicator.CircleIndicator;
 
 import java.util.List;
 
@@ -63,9 +63,10 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case TYPE_BANNER:
                 return new MyBannerViewHolder(mLayoutInflater.inflate(R.layout.item_banner, parent, false));
             case TYPE_ARTICLE:
-                return new ArticleViewHolder(mLayoutInflater.inflate(R.layout.item_article, parent, false));
+//                return new ArticleViewHolder(mLayoutInflater.inflate(R.layout.item_article, parent, false));
+                return new ArticleViewHolder(ItemArticleBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
             default:
-                return new LoadMoreViewHolder(mLayoutInflater.inflate(R.layout.item_load_more, parent, false));
+                return new LoadMoreViewHolder(mLayoutInflater.inflate(R.layout.item_load, parent, false));
         }
     }
 
@@ -78,48 +79,45 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 public void onBindView(BannerImageHolder holder, BannerBean data, int position, int size) {
                     Glide.with(holder.itemView)
                             .load(data.getImagePath())
+                            .override(holder.imageView.getWidth(), holder.imageView.getHeight())
                             .apply(RequestOptions.bitmapTransform(new RoundedCorners(30)))
                             .into(holder.imageView);
-                    holder.imageView.setOnClickListener(v -> {
-                        mOnItemClickListener.onItemClick(v, position, data.getUrl());
-                    });
+                    holder.imageView.setOnClickListener(v -> mOnItemClickListener.onItemClick(v, position, data.getUrl()));
                 }
-            }).setIndicator(new RoundLinesIndicator(mContext));
+            }).setIndicator(new CircleIndicator(mContext));
         } else if (position != getItemCount() - 1) {
             ArticleViewHolder articleViewHolder = (ArticleViewHolder) holder;
             ArticleBean articleBean = articleBeanList.get(position - 1);
-            articleViewHolder.tv_title.setText(articleBean.getTitle());
+            articleViewHolder.binding.tvArticleTitle.setText(articleBean.getTitle());
             List<ArticleBean.TagsBean> tags = articleBean.getTags();
             if (tags != null && tags.size() != 0) {
                 String name = tags.get(0).getName();
-                if (name.equals("项目")) {
-                    articleViewHolder.tv_tag_project.setVisibility(View.VISIBLE);
-                    articleViewHolder.tv_tag_public.setVisibility(View.GONE);
-                } else if (name.equals("公众号")) {
-                    articleViewHolder.tv_tag_public.setVisibility(View.VISIBLE);
-                    articleViewHolder.tv_tag_project.setVisibility(View.GONE);
+                if ("项目".equals(name)) {
+                    articleViewHolder.binding.tvTagProject.setVisibility(View.VISIBLE);
+                    articleViewHolder.binding.tvTagPublic.setVisibility(View.GONE);
+                } else if ("公众号".equals(name)) {
+                    articleViewHolder.binding.tvTagPublic.setVisibility(View.VISIBLE);
+                    articleViewHolder.binding.tvTagProject.setVisibility(View.GONE);
                 }
             } else {
-                articleViewHolder.tv_tag_project.setVisibility(View.GONE);
-                articleViewHolder.tv_tag_public.setVisibility(View.GONE);
+                articleViewHolder.binding.tvTagProject.setVisibility(View.GONE);
+                articleViewHolder.binding.tvTagPublic.setVisibility(View.GONE);
             }
-            if (articleBean.getAuthor().equals("")) {
-                articleViewHolder.tv_authorName.setText(articleBean.getShareUser());
+            if ("".equals(articleBean.getAuthor())) {
+                articleViewHolder.binding.tvArticleAuthorShareUserName.setText(articleBean.getShareUser());
             } else {
-                articleViewHolder.tv_authorName.setText(articleBean.getAuthor());
+                articleViewHolder.binding.tvArticleAuthorShareUserName.setText(articleBean.getAuthor());
             }
-            articleViewHolder.tv_chapterName.setText(String.format("%s\\%s", articleBean.getSuperChapterName(), articleBean.getChapterName()));
+            articleViewHolder.binding.tvArticleChapterName.setText(String.format("%s\\%s", articleBean.getSuperChapterName(), articleBean.getChapterName()));
             String date = articleBean.getNiceDate();
             if (date.length() > 10) {
                 date = date.substring(0, 10);
-                articleViewHolder.tv_tag_new.setVisibility(View.GONE);
+                articleViewHolder.binding.tvTagNew.setVisibility(View.GONE);
             } else {
-                articleViewHolder.tv_tag_new.setVisibility(View.VISIBLE);
+                articleViewHolder.binding.tvTagNew.setVisibility(View.VISIBLE);
             }
-            articleViewHolder.tv_dateValue.setText(date);
-            articleViewHolder.itemView.setOnClickListener(v -> {
-                mOnItemClickListener.onItemClick(v, position, articleBean.getLink());
-            });
+            articleViewHolder.binding.tvArticleDateValue.setText(date);
+            articleViewHolder.itemView.setOnClickListener(v -> mOnItemClickListener.onItemClick(v, position, articleBean.getLink()));
         }
     }
 
@@ -139,17 +137,12 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     static class ArticleViewHolder extends RecyclerView.ViewHolder {
-        TextView tv_title, tv_tag_new, tv_tag_project, tv_tag_public, tv_authorName, tv_chapterName, tv_dateValue;
 
-        public ArticleViewHolder(@NonNull View itemView) {
-            super(itemView);
-            tv_title = itemView.findViewById(R.id.tv_article_title);
-            tv_tag_new = itemView.findViewById(R.id.tv_tag_new);
-            tv_tag_project = itemView.findViewById(R.id.tv_tag_project);
-            tv_tag_public = itemView.findViewById(R.id.tv_tag_public);
-            tv_authorName = itemView.findViewById(R.id.tv_article_author_shareUser_name);
-            tv_chapterName = itemView.findViewById(R.id.tv_article_chapter_name);
-            tv_dateValue = itemView.findViewById(R.id.tv_article_date_value);
+        ItemArticleBinding binding;
+
+        public ArticleViewHolder(ItemArticleBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 
