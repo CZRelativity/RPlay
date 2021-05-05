@@ -38,7 +38,6 @@ public class HomeFragment extends Fragment implements HomeContract.View, SwipeRe
 
     public HomeFragment() {
         // Required empty public constructor
-        Glide
     }
 
     public static HomeFragment newInstance(RvOnScrollListener.OnScrollUpperShower upperShower) {
