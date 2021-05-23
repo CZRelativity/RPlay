@@ -1,8 +1,6 @@
 package com.rek.gplay.view;
 
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.rek.gplay.bean.ArticleBean;
 import com.rek.gplay.bean.BannerBean;
 import com.rek.gplay.bean.HomeBean;
@@ -30,8 +27,11 @@ import java.util.List;
 public class HomeFragment extends Fragment implements HomeContract.View, SwipeRefreshLayout.OnRefreshListener {
 
     FragmentHomeBinding binding;
-    HomePresenter homePresenter;
-    HomeAdapter homeAdapter;
+    RecyclerView rv;
+    SwipeRefreshLayout sr;
+
+    HomePresenter presenter;
+    HomeAdapter adapter;
 
     //    RvOnScrollListener.OnScrollToolBarShower toolBarShower;
     RvOnScrollListener.OnScrollUpperShower mUpperShower;
@@ -49,7 +49,7 @@ public class HomeFragment extends Fragment implements HomeContract.View, SwipeRe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        homePresenter = new HomePresenter(this);
+        presenter = new HomePresenter(this);
     }
 
     //onCreateView后于onCreate，两个回调都可以拿到Bundle，onCreateView额外拿到父容器和LayoutInflater，正好配合ViewBinding
@@ -64,51 +64,45 @@ public class HomeFragment extends Fragment implements HomeContract.View, SwipeRe
     }
 
     //fragment使用getContext方法获取宿主的Context
-    @Override
     public void initView() {
-        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
-        binding.rvHome.setLayoutManager(mLinearLayoutManager);
-        RvOnScrollListener mRvOnScrollListener = new RvOnScrollListener(binding.rvHome);
-        mRvOnScrollListener.setOnScrollLoader(() -> homePresenter.requestMoreDatas());
+        sr = binding.srRvHome.sr;
+        rv = binding.srRvHome.rv;
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
+        rv.setLayoutManager(linearLayoutManager);
+        RvOnScrollListener mRvOnScrollListener = new RvOnScrollListener(rv);
+        mRvOnScrollListener.setOnScrollLoader(() -> presenter.requestMoreData());
 //        mRvOnScrollListener.setOnScrollUpperShower(mUpperShower);
-        binding.rvHome.addOnScrollListener(mRvOnScrollListener);
+        rv.addOnScrollListener(mRvOnScrollListener);
 
-//        //防止banner自动获取焦点从而不自然地滑动
-//        binding.rvHome.setFocusable(true);
-//        binding.rvHome.setFocusableInTouchMode(true);
+        //rv获取焦点，防止banner自动获取焦点从而不自然地滑动
 
-        binding.srLayoutHome.setOnRefreshListener(this);
-        requestData();
+        sr.setOnRefreshListener(this);
+        presenter.requestData();
     }
 
     public void scroll2Top() {
-        binding.rvHome.smoothScrollToPosition(0);
+        rv.smoothScrollToPosition(0);
     }
 
     private void loadRV(List<ArticleBean> articleBeanList, List<BannerBean> bannerBeanList) {
-        homeAdapter = new HomeAdapter(getContext(), articleBeanList, bannerBeanList);
-        homeAdapter.setOnItemClickListener((view, pos, url) -> {
+        adapter = new HomeAdapter(getContext(), articleBeanList, bannerBeanList);
+        adapter.setOnItemClickListener((view, pos, url) -> {
             Intent intent = new Intent(getContext(), WebActivity.class);
             intent.putExtra("URL", url);
             startActivity(intent);
         });
-        binding.rvHome.setAdapter(homeAdapter);
+        rv.setAdapter(adapter);
     }
 
     private void loadMoreRV(List<ArticleBean> moreArticleList) {
-        homeAdapter.addMoreArticles(moreArticleList);
-    }
-
-    @Override
-    public void requestData() {
-        homePresenter.requestData();
+        adapter.addMoreData(moreArticleList);
     }
 
     @Override
     public void showData(HomeBean homeBean) {
         loadRV(homeBean.getHomeArticleBeanList(), homeBean.getHomeBannerBeanList());
-        if (binding.srLayoutHome.isRefreshing()) {
-            binding.srLayoutHome.setRefreshing(false);
+        if (sr.isRefreshing()) {
+            sr.setRefreshing(false);
         }
     }
 
@@ -130,7 +124,7 @@ public class HomeFragment extends Fragment implements HomeContract.View, SwipeRe
     //OnRefreshListener
     @Override
     public void onRefresh() {
-        requestData();
+        presenter.requestData();
     }
 
 }

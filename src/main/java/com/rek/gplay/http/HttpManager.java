@@ -10,7 +10,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HttpManager {
 
-    public OkHttpClient getOkHttpClient() {
+    private static volatile Retrofit INSTANCE;
+
+    private static OkHttpClient getOkHttpClient() {
 
         //log使用拦截器
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
@@ -28,13 +30,19 @@ public class HttpManager {
     }
 
     //通过传入可以自定义okHttpClient，否则会使用默认配置
-    public Retrofit getRetrofit(OkHttpClient okHttpClient) {
-        Retrofit.Builder builder = new Retrofit.Builder()
-                .baseUrl(ApiService.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .client(okHttpClient);
-        return builder.build();
+    public static Retrofit getRetrofit() {
+        if (INSTANCE == null) {
+            synchronized (HttpManager.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new Retrofit.Builder()
+                            .baseUrl(HttpService.BASE_URL)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                            .client(getOkHttpClient())
+                            .build();
+                }
+            }
+        }
+        return INSTANCE;
     }
-
 }

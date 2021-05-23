@@ -1,13 +1,14 @@
 package com.rek.gplay.view;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -17,7 +18,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.rek.gplay.R;
 import com.rek.gplay.databinding.ActivityMainBinding;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, RvOnScrollListener.OnScrollUpperShower, BottomNavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, RvOnScrollListener.OnScrollUpperShower,
+        BottomNavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "MainActivity";
     private static final String HOME_KEY = "home";
@@ -33,8 +35,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_toolbar, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.menu_search_icon) {
+            Intent intent = new Intent(this, SearchActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -57,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initView(Bundle savedInstanceState) {
 
-        setSupportActionBar(binding.appbarMain.tb);
+        setSupportActionBar(binding.mainTb.tb);
 
         binding.btnUpMain.setOnClickListener(this);
         binding.btNvMain.setOnNavigationItemSelectedListener(this);
@@ -90,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         /* ActionBarDrawerToggle实际继承了DrawerLayout.DrawerListener,
         所以可以直接传入DrawerListener */
-        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, binding.drawerHome, binding.appbarMain.tb, R.string.open, R.string.close);
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, binding.drawerHome, binding.mainTb.tb, R.string.open, R.string.close);
         actionBarDrawerToggle.syncState();
         binding.drawerHome.addDrawerListener(actionBarDrawerToggle);
 
@@ -137,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (projectFragment != null) {
             transaction.hide(projectFragment);
         }
-
+        ActionBar actionBar = getSupportActionBar();
         switch (key) {
             case HOME_KEY:
                 if (homeFragment == null) {
@@ -146,7 +158,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     transaction.show(homeFragment);
                 }
-                getSupportActionBar().setTitle("首页");
+                if (actionBar != null) {
+                    actionBar.setTitle("首页");
+                }
                 break;
             case SYSTEM_KEY:
                 if (systemFragment == null) {
@@ -155,7 +169,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     transaction.show(systemFragment);
                 }
-                getSupportActionBar().setTitle("体系");
+                if (actionBar != null) {
+                    actionBar.setTitle("体系");
+                }
                 break;
             case PROJECT_KEY:
                 if (projectFragment == null) {
@@ -164,7 +180,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     transaction.show(projectFragment);
                 }
-                getSupportActionBar().setTitle("项目");
+                if (actionBar != null) {
+                    actionBar.setTitle("项目");
+                }
                 break;
         }
 

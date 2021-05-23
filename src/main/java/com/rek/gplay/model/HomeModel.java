@@ -2,9 +2,8 @@ package com.rek.gplay.model;
 
 import com.rek.gplay.bean.ArticlePageBean;
 import com.rek.gplay.bean.BannerBean;
-import com.rek.gplay.bean.HomeBean;
 import com.rek.gplay.bean.ResponseBean;
-import com.rek.gplay.http.ApiService;
+import com.rek.gplay.http.HttpService;
 import com.rek.gplay.http.HttpManager;
 
 import java.util.List;
@@ -13,22 +12,21 @@ import rx.Observable;
 
 public class HomeModel {
 
-    private ApiService apiService;
-    public int articlePage;
+    private final HttpService api;
+    public int dataPage;
 
     //考虑到连续获取页面
     public HomeModel() {
-        HttpManager manager = new HttpManager();
-        this.apiService = manager.getRetrofit(manager.getOkHttpClient()).create(ApiService.class);
-        articlePage = 0;
+        this.api = HttpManager.getRetrofit().create(HttpService.class);
+        dataPage = 0;
     }
 
     public Observable<ResponseBean<ArticlePageBean>> getArticlePage(int page) {
-        return apiService.getArticlePage(page);
+        return api.getArticlePage(page);
     }
 
     public Observable<ResponseBean<List<BannerBean>>> getBanner() {
-        return apiService.getBanner();
+        return api.getBanner();
     }
 
 //    @Override

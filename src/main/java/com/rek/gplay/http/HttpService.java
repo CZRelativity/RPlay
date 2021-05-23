@@ -12,7 +12,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import rx.Observable;
 
-public interface ApiService {
+public interface HttpService {
 
     String BASE_URL = "https://www.wanandroid.com/";
 

@@ -11,7 +11,6 @@ class RvOnScrollListener extends RecyclerView.OnScrollListener {
     LinearLayoutManager linearLayoutManager;
     OnScrollLoader onScrollLoader;
     OnScrollUpperShower onScrollUpperShower;
-//    OnScrollToolBarShower onScrollToolBarShower;
 
     int lastVisibleItemPos;
 
@@ -27,10 +26,6 @@ class RvOnScrollListener extends RecyclerView.OnScrollListener {
     public void setOnScrollUpperShower(OnScrollUpperShower onScrollUpperShower) {
         this.onScrollUpperShower = onScrollUpperShower;
     }
-
-//    public void setOnScrollToolBarShower(OnScrollToolBarShower onScrollToolBarShower) {
-//        this.onScrollToolBarShower = onScrollToolBarShower;
-//    }
 
     /* 滚动状态变化
      * STATE_IDLE为无滑动，STATE_SETTLING滑动中 */
@@ -67,11 +62,5 @@ class RvOnScrollListener extends RecyclerView.OnScrollListener {
 
         void hideUpper();
     }
-
-//    public interface OnScrollToolBarShower {
-//        void showToolBar();
-//
-//        void hideToolBar();
-//    }
 
 }

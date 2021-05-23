@@ -6,7 +6,6 @@ import rx.Observable;
 
 public interface BaseModel<T> {
 
-    //    void getDatas(Callback<ResponseBean<T>> callback);
-    Observable<ResponseBean<T>> getDatas();
+    Observable<ResponseBean<T>> getData();
 
 }

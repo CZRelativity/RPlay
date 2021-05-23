@@ -15,6 +15,8 @@ import com.rek.gplay.R;
 import com.rek.gplay.bean.ArticleBean;
 import com.rek.gplay.bean.BannerBean;
 import com.rek.gplay.databinding.ItemArticleBinding;
+import com.rek.gplay.view.viewholder.ArticleViewHolder;
+import com.rek.gplay.view.viewholder.LoadMoreViewHolder;
 import com.youth.banner.Banner;
 import com.youth.banner.adapter.BannerImageAdapter;
 import com.youth.banner.holder.BannerImageHolder;
@@ -27,16 +29,16 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_BANNER = 0;
     private static final int TYPE_ARTICLE = 1;
     private static final int TYPE_LOAD = 2;
-    private List<ArticleBean> articleBeanList;
-    private List<BannerBean> bannerBeanList;
+    private final List<ArticleBean> articleList;
+    private final List<BannerBean> bannerList;
     LayoutInflater mLayoutInflater;
     Context mContext;
     OnItemClickListener mOnItemClickListener;
 
     public HomeAdapter(Context context, List<ArticleBean> articleBeans, List<BannerBean> bannerBeans) {
         mContext = context;
-        this.articleBeanList = articleBeans;
-        this.bannerBeanList = bannerBeans;
+        this.articleList = articleBeans;
+        this.bannerList = bannerBeans;
         mLayoutInflater = LayoutInflater.from(context);
     }
 
@@ -44,12 +46,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         mOnItemClickListener = onItemClickListener;
     }
 
-    public interface OnItemClickListener {
-        void onItemClick(View view, int pos, String url);
-    }
-
-    public void addMoreArticles(List<ArticleBean> moreArticleBeanList) {
-        articleBeanList.addAll(moreArticleBeanList);
+    public void addMoreData(List<ArticleBean> moreArticleList) {
+        articleList.addAll(moreArticleList);
         this.notifyDataSetChanged();
     }
 
@@ -74,7 +72,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (position == 0) {
-            ((MyBannerViewHolder) holder).banner.setAdapter(new BannerImageAdapter<BannerBean>(bannerBeanList) {
+            ((MyBannerViewHolder) holder).banner.setAdapter(new BannerImageAdapter<BannerBean>(bannerList) {
                 @Override
                 public void onBindView(BannerImageHolder holder, BannerBean data, int position, int size) {
                     Glide.with(holder.itemView)
@@ -87,7 +85,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }).setIndicator(new CircleIndicator(mContext));
         } else if (position != getItemCount() - 1) {
             ArticleViewHolder articleViewHolder = (ArticleViewHolder) holder;
-            ArticleBean articleBean = articleBeanList.get(position - 1);
+            ArticleBean articleBean = articleList.get(position - 1);
             articleViewHolder.binding.tvArticleTitle.setText(articleBean.getTitle());
             List<ArticleBean.TagsBean> tags = articleBean.getTags();
             if (tags != null && tags.size() != 0) {
@@ -108,7 +106,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             } else {
                 articleViewHolder.binding.tvArticleAuthorShareUserName.setText(articleBean.getAuthor());
             }
-            articleViewHolder.binding.tvArticleChapterName.setText(String.format("%s\\%s", articleBean.getSuperChapterName(), articleBean.getChapterName()));
+            articleViewHolder.binding.tvArticleChapterName.setText(String.format("%s / %s", articleBean.getSuperChapterName(), articleBean.getChapterName()));
             String date = articleBean.getNiceDate();
             if (date.length() > 10) {
                 date = date.substring(0, 10);
@@ -133,17 +131,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return articleBeanList.size() + 2;
-    }
-
-    static class ArticleViewHolder extends RecyclerView.ViewHolder {
-
-        ItemArticleBinding binding;
-
-        public ArticleViewHolder(ItemArticleBinding binding) {
-            super(binding.getRoot());
-            this.binding = binding;
-        }
+        return articleList.size() + 2;
     }
 
     static class MyBannerViewHolder extends RecyclerView.ViewHolder {
@@ -153,13 +141,6 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public MyBannerViewHolder(@NonNull View itemView) {
             super(itemView);
             banner = itemView.findViewById(R.id.banner_home);
-        }
-    }
-
-    static class LoadMoreViewHolder extends RecyclerView.ViewHolder {
-
-        public LoadMoreViewHolder(@NonNull View itemView) {
-            super(itemView);
         }
     }
 }

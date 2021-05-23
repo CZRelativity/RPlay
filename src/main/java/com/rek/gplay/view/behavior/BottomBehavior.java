@@ -15,7 +15,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class BottomBehavior extends CoordinatorLayout.Behavior<BottomNavigationView> {
 
     private ObjectAnimator inAnimator, outAnimator;
-    private final static String TAG="BottomBehavior";
+    private final static String TAG = "BottomBehavior";
 
     /* Error:Could not inflate Behavior subclass com.rek.gplay.view.BottomBehaviour
      * 原因：没有实现所有构造方法 */
@@ -61,7 +61,6 @@ public class BottomBehavior extends CoordinatorLayout.Behavior<BottomNavigationV
 //            //手向下滑动，屏幕向上滑动，BottomNavigation重新进入屏幕
 //        } else if (dy < 0) {
 //            if (inAnimator == null) {
-//                //从
 //                inAnimator = ObjectAnimator.ofFloat(child, "translationY", child.getHeight(), 0);
 //                inAnimator.setDuration(300);
 //            }
@@ -70,7 +69,5 @@ public class BottomBehavior extends CoordinatorLayout.Behavior<BottomNavigationV
 //            }
 //        }
 //    }
-
-
 
 }

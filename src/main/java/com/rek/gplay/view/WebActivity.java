@@ -10,13 +10,14 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.rek.gplay.databinding.ActivityWebBinding;
 
 public class WebActivity extends AppCompatActivity {
 
-    private final static String TAG = "WebActivityTAG";
+    private final static String TAG = "WebActivity";
 
     ActivityWebBinding binding;
 
@@ -25,8 +26,11 @@ public class WebActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityWebBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        setSupportActionBar(binding.tb);
-        getSupportActionBar().setTitle("加载中......");
+        setSupportActionBar(binding.webTb.tb);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle("加载中......");
+        }
 
         Intent intent = getIntent();
         String url = intent.getStringExtra("URL");
@@ -50,7 +54,10 @@ public class WebActivity extends AppCompatActivity {
             binding.progress.setProgress(newProgress);
             if (newProgress > 99 && binding.progress.getVisibility() == View.VISIBLE) {
                 binding.progress.setVisibility(View.GONE);
-                getSupportActionBar().setTitle(binding.nwv.getTitle());
+                ActionBar actionBar = getSupportActionBar();
+                if (actionBar != null) {
+                    actionBar.setTitle(binding.nwv.getTitle());
+                }
             }
         }
     }

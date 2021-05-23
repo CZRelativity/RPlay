@@ -14,9 +14,16 @@
 
         <!--        这里的类型要与后面findViewById的对象完全对应-->
 
-        <include
-            android:id="@+id/appbar_main"
-            layout="@layout/layout_appbar" />
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:elevation="0dp">
+
+            <include
+                android:id="@+id/main_tb"
+                layout="@layout/layout_toolbar" />
+
+        </com.google.android.material.appbar.AppBarLayout>
 
         <FrameLayout
             android:id="@+id/frame_main"
@@ -29,6 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
+            android:alpha="0.9"
             android:background="?android:attr/windowBackground"
             app:layout_behavior=".view.behavior.BottomBehavior"
             app:menu="@menu/menu_bottom_navigation" />
