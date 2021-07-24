@@ -4,22 +4,19 @@ import java.util.List;
 
 public class HomeBean {
 
-    private List<BannerBean> homeBannerBeanList;
-    private List<ArticleBean> homeArticleBeanList;
+    private final List<BannerBean> homeBannerBeanList;
+    private final List<ArticleBean> homeArticleBeanList;
+
+    public HomeBean(List<ArticleBean> articleBeans,List<BannerBean> bannerBeans){
+        this.homeArticleBeanList=articleBeans;
+        this.homeBannerBeanList=bannerBeans;
+    }
 
     public List<BannerBean> getHomeBannerBeanList() {
         return homeBannerBeanList;
     }
 
-    public void setHomeBannerBeanList(List<BannerBean> homeBannerBeanList) {
-        this.homeBannerBeanList = homeBannerBeanList;
-    }
-
     public List<ArticleBean> getHomeArticleBeanList() {
         return homeArticleBeanList;
-    }
-
-    public void setHomeArticleBeanList(List<ArticleBean> homeArticleBeanList) {
-        this.homeArticleBeanList = homeArticleBeanList;
     }
 }

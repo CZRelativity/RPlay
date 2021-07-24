@@ -7,6 +7,7 @@ import com.rek.gplay.bean.ResponseBean;
 import java.util.List;
 
 import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -23,6 +24,7 @@ public interface HttpService {
     @GET("banner/json")
     Observable<ResponseBean<List<BannerBean>>> getBanner();
 
+    @FormUrlEncoded
     @POST("article/query/{page}/json")
     Observable<ResponseBean<ArticlePageBean>> getArticlePageBySearchKey(@Path("page") int page,
                                                                         @Field("k") String key);

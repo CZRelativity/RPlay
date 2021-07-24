@@ -10,7 +10,18 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HttpManager {
 
-    private static volatile Retrofit INSTANCE;
+    private static volatile HttpService SERVICE;
+
+    public static HttpService getService() {
+        if (SERVICE == null) {
+            synchronized (HttpManager.class) {
+                if (SERVICE == null) {
+                    SERVICE = getRetrofit().create(HttpService.class);
+                }
+            }
+        }
+        return SERVICE;
+    }
 
     private static OkHttpClient getOkHttpClient() {
 
@@ -30,19 +41,12 @@ public class HttpManager {
     }
 
     //通过传入可以自定义okHttpClient，否则会使用默认配置
-    public static Retrofit getRetrofit() {
-        if (INSTANCE == null) {
-            synchronized (HttpManager.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new Retrofit.Builder()
-                            .baseUrl(HttpService.BASE_URL)
-                            .addConverterFactory(GsonConverterFactory.create())
-                            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                            .client(getOkHttpClient())
-                            .build();
-                }
-            }
-        }
-        return INSTANCE;
+    private static Retrofit getRetrofit() {
+        return new Retrofit.Builder()
+                .baseUrl(HttpService.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .client(getOkHttpClient())
+                .build();
     }
 }

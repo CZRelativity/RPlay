@@ -17,7 +17,7 @@ public class HomeModel {
 
     //考虑到连续获取页面
     public HomeModel() {
-        this.api = HttpManager.getRetrofit().create(HttpService.class);
+        this.api = HttpManager.getService();
         dataPage = 0;
     }
 

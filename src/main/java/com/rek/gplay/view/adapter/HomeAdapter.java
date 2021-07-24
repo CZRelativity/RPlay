@@ -15,6 +15,7 @@ import com.rek.gplay.R;
 import com.rek.gplay.bean.ArticleBean;
 import com.rek.gplay.bean.BannerBean;
 import com.rek.gplay.databinding.ItemArticleBinding;
+import com.rek.gplay.util.DataParser;
 import com.rek.gplay.view.viewholder.ArticleViewHolder;
 import com.rek.gplay.view.viewholder.LoadMoreViewHolder;
 import com.youth.banner.Banner;
@@ -48,7 +49,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void addMoreData(List<ArticleBean> moreArticleList) {
         articleList.addAll(moreArticleList);
-        this.notifyDataSetChanged();
+        notifyDataSetChanged();
     }
 
     //创建ViewHolder
@@ -86,7 +87,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (position != getItemCount() - 1) {
             ArticleViewHolder articleViewHolder = (ArticleViewHolder) holder;
             ArticleBean articleBean = articleList.get(position - 1);
-            articleViewHolder.binding.tvArticleTitle.setText(articleBean.getTitle());
+            articleViewHolder.binding.tvArticleTitle.setText(DataParser.parseTitle(articleBean.getTitle()));
             List<ArticleBean.TagsBean> tags = articleBean.getTags();
             if (tags != null && tags.size() != 0) {
                 String name = tags.get(0).getName();
@@ -109,7 +110,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             articleViewHolder.binding.tvArticleChapterName.setText(String.format("%s / %s", articleBean.getSuperChapterName(), articleBean.getChapterName()));
             String date = articleBean.getNiceDate();
             if (date.length() > 10) {
-                date = date.substring(0, 10);
+                date = DataParser.parseDate(date);
                 articleViewHolder.binding.tvTagNew.setVisibility(View.GONE);
             } else {
                 articleViewHolder.binding.tvTagNew.setVisibility(View.VISIBLE);

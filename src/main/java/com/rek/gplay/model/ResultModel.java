@@ -9,11 +9,11 @@ import rx.Observable;
 
 public class ResultModel {
 
-    HttpService api;
+    private final HttpService api;
     public int dataPage;
 
     public ResultModel() {
-        api = HttpManager.getRetrofit().create(HttpService.class);
+        api = HttpManager.getService();
         dataPage = 0;
     }
 

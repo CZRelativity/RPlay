@@ -10,28 +10,40 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.rek.gplay.bean.ArticleBean;
 import com.rek.gplay.databinding.ItemArticleBinding;
+import com.rek.gplay.util.DataParser;
 import com.rek.gplay.view.viewholder.ArticleViewHolder;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ResultAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     Context mContext;
-    List<ArticleBean> articleBeanList;
+    List<ArticleBean> articleList;
     OnItemClickListener mOnItemClickListener;
 
-    public ResultAdapter(Context context, List<ArticleBean> articleBeans) {
+    public ResultAdapter(Context mContext) {
+        this.mContext = mContext;
+        articleList=new ArrayList<>();
+    }
+
+    public ResultAdapter(Context context, List<ArticleBean> articleList) {
         mContext = context;
-        articleBeanList = articleBeans;
+        this.articleList = articleList;
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
     }
 
-    public void addMoreData(List<ArticleBean> moreArticleList) {
-        articleBeanList.addAll(moreArticleList);
+    public void setData(List<ArticleBean> articleList){
+        this.articleList =articleList;
+        notifyDataSetChanged();
+    }
+
+    public void addData(List<ArticleBean> moreArticleList) {
+        articleList.addAll(moreArticleList);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -43,8 +55,8 @@ public class ResultAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ArticleViewHolder articleViewHolder = (ArticleViewHolder) holder;
-        ArticleBean articleBean = articleBeanList.get(position - 1);
-        articleViewHolder.binding.tvArticleTitle.setText(articleBean.getTitle());
+        ArticleBean articleBean = articleList.get(position);
+        articleViewHolder.binding.tvArticleTitle.setText(DataParser.parseTitle(articleBean.getTitle()));
         List<ArticleBean.TagsBean> tags = articleBean.getTags();
         if (tags != null && tags.size() != 0) {
             String name = tags.get(0).getName();
@@ -67,7 +79,7 @@ public class ResultAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         articleViewHolder.binding.tvArticleChapterName.setText(String.format("%s / %s", articleBean.getSuperChapterName(), articleBean.getChapterName()));
         String date = articleBean.getNiceDate();
         if (date.length() > 10) {
-            date = date.substring(0, 10);
+            date = DataParser.parseDate(date);
             articleViewHolder.binding.tvTagNew.setVisibility(View.GONE);
         } else {
             articleViewHolder.binding.tvTagNew.setVisibility(View.VISIBLE);
@@ -78,6 +90,6 @@ public class ResultAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemCount() {
-        return articleBeanList.size();
+        return articleList.size();
     }
 }

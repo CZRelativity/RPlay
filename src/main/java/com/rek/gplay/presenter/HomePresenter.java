@@ -8,9 +8,12 @@ import com.rek.gplay.bean.ResponseBean;
 import com.rek.gplay.model.HomeModel;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
+import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func2;
 import rx.schedulers.Schedulers;
 
 public class HomePresenter implements HomeContract.Presenter {
@@ -18,7 +21,6 @@ public class HomePresenter implements HomeContract.Presenter {
     //presenter实际上是通过View的接口与View交互的，如果直接实例化View本身，解耦性就没这么好了
     private final HomeContract.View homeView;
     private final HomeModel homeModel;
-    private HomeBean homeBean;
 
     //不写Contract的话自己要多写好多次泛型- -
     public HomePresenter(HomeContract.View view) {
@@ -28,49 +30,16 @@ public class HomePresenter implements HomeContract.Presenter {
 
     public void requestData() {
 
-        homeBean = new HomeBean();
-
-        homeModel.getArticlePage(0)
+        Observable.zip(
+                homeModel.getArticlePage(0),
+                homeModel.getBanner(),
+                (articlePageResponse, bannerResponse) ->
+                        new HomeBean(articlePageResponse.getData().getArticles(),bannerResponse.getData()))
                 //把这句前面的操作放到子线程去做
                 .subscribeOn(Schedulers.io())
                 //然后这句下面的操作转到主线程
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<ResponseBean<ArticlePageBean>>() {
-                    //在订阅之前要做的事情
-                    @Override
-                    public void onStart() {
-                        super.onStart();
-                    }
-
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        homeView.showError(e.getMessage());
-                    }
-
-                    //处理数据
-                    @Override
-                    public void onNext(ResponseBean<ArticlePageBean> articlePageBean) {
-                        if (articlePageBean != null) {
-                            homeBean.setHomeArticleBeanList(articlePageBean.getData().getArticles());
-                            if (homeBean.getHomeBannerBeanList() != null) {
-                                homeView.showData(homeBean);
-                                homeModel.dataPage = 0;
-                            }
-                        } else {
-                            homeView.showNoData();
-                        }
-                    }
-                });
-
-        homeModel.getBanner()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<ResponseBean<List<BannerBean>>>() {
+                .subscribe(new Subscriber<HomeBean>() {
                     @Override
                     public void onCompleted() {
 
@@ -82,18 +51,16 @@ public class HomePresenter implements HomeContract.Presenter {
                     }
 
                     @Override
-                    public void onNext(ResponseBean<List<BannerBean>> bannerBeanList) {
-                        if (bannerBeanList != null) {
-                            homeBean.setHomeBannerBeanList(bannerBeanList.getData());
-                            if (homeBean.getHomeArticleBeanList() != null) {
-                                homeModel.dataPage = 0;
-                                homeView.showData(homeBean);
-                            }
-                        } else {
+                    public void onNext(HomeBean homeBean) {
+                        if(homeBean!=null) {
+                            homeView.showData(homeBean);
+                            homeModel.dataPage = 0;
+                        }else {
                             homeView.showNoData();
                         }
                     }
                 });
+
     }
 
     @Override
@@ -120,16 +87,15 @@ public class HomePresenter implements HomeContract.Presenter {
                             List<ArticleBean> articleBeanList = articlePageBean.getData().getArticles();
                             if (articleBeanList != null) {
                                 homeView.showMoreData(articleBeanList);
-                            } else {
-                                homeModel.dataPage--;
-                                homeView.showNoData();
+                                return;
                             }
                         }
+                        homeModel.dataPage--;
+                        homeView.showNoData();
                     }
                 });
 
     }
-
 
 //    @Override
 //    public void requestDatas() {
